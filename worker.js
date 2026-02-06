@@ -78,7 +78,7 @@ function ensureProtocol(url, defaultProtocol) {
 // 处理重定向
 function handleRedirect(response, body) {
   const location = new URL(response.headers.get('location'));
-  const modifiedLocation = `/${encodeURIComponent(location.toString())}`;
+  const modifiedLocation = `/${location.toString()}`;
   return new Response(body, {
       status: response.status,
       statusText: response.statusText,
