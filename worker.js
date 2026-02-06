@@ -1,20 +1,27 @@
-addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request));
-});
+export default {
+  async fetch(request, env) {
+    return await handleRequest(request, env);
+  }
+};
 
-async function handleRequest(request) {
-  try {
-      const url = new URL(request.url);
+async function handleRequest(request, env) {
+  const url = new URL(request.url);
 
-      // 如果访问根目录，返回HTML
-      if (url.pathname === "/") {
-          return new Response(getRootHtml(), {
-              headers: {
-                  'Content-Type': 'text/html; charset=utf-8'
-              }
-          });
+  // 如果访问根目录，返回伪装页面或 HTML
+  if (url.pathname === "/") {
+      const envKey = env.URL302 ? 'URL302' : (env.URL ? 'URL' : null);
+      if (envKey) {
+          const URL = env[envKey];
+          return envKey === 'URL302' ? Response.redirect(URL, 302) : fetch(new Request(URL, request));
       }
+      return new Response(getRootHtml(), {
+          headers: {
+              'Content-Type': 'text/html; charset=utf-8'
+          }
+      });
+  }
 
+  try {
       // 从请求路径中提取目标 URL
       let actualUrlStr = decodeURIComponent(url.pathname.replace("/", ""));
 
